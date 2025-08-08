@@ -10,7 +10,7 @@ def list_windows() -> List[str]:
     """列出当前所有窗口标题"""
     window_manager = WindowManager()
     windows = window_manager.list_windows()
-    return [w.title for w in windows]
+    return [{"titel": w.title, "index": w.index} for w in windows]
 
 
 @tool

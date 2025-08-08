@@ -72,7 +72,7 @@ class WindowsWindowManager(BaseWindowManager):
                 w.restore()
             w.activate()
             time.sleep(0.1)
-        except IndexError:
+        except indexError:
             pass
 
     # --------------------------------------------------
@@ -107,7 +107,7 @@ class WindowsWindowManager(BaseWindowManager):
             try:
                 w = gw.getWindowsWithTitle(title)[index]
                 w.resizeTo(width, height)
-            except IndexError:
+            except indexError:
                 pass
 
     # --------------------------------------------------
@@ -117,7 +117,7 @@ class WindowsWindowManager(BaseWindowManager):
             try:
                 w = gw.getWindowsWithTitle(title)[index]
                 w.moveTo(x, y)
-            except IndexError:
+            except indexError:
                 pass
 
     # --------------------------------------------------
