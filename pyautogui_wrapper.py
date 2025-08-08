@@ -55,24 +55,3 @@ class PyAutoGUIWrapper:
     def hotkey(self, *keys):
         pyautogui.hotkey(*keys)
 
-
-class ScreenCapture:
-    """屏幕截图工具类"""
-
-    @staticmethod
-    def screenshot_rect(rect: WindowRect):
-        """截取指定区域的屏幕"""
-        import mss
-        with mss.mss() as sct:
-            return sct.grab(rect.to_dict())
-
-    @staticmethod
-    def save_screenshot(img, filepath: str):
-        """保存截图到文件"""
-        from PIL import Image
-        if hasattr(img, 'save'):
-            # 如果是PIL Image
-            img.save(filepath)
-        else:
-            # 如果是mss截图对象
-            Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX").save(filepath)

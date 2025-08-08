@@ -9,7 +9,7 @@ def test_imports():
         print("✓ window_manager 导入成功")
 
         # 测试 pyautogui_wrapper 导入
-        from pyautogui_wrapper import PyAutoGUIWrapper, ScreenCapture
+        from pyautogui_wrapper import PyAutoGUIWrapper
         print("✓ pyautogui_wrapper 导入成功")
 
         # 测试 tools 导入

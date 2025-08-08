@@ -1,17 +1,17 @@
 # shared_state.py - 共享状态管理
 from typing import Optional
-from gui_tools.window_manager import WindowRect
+from gui_tools.window_manager import WindowInfo
 
-_active_window: Optional[WindowRect] = None
+_active_window: Optional[WindowInfo] = None
 
 
-def get_active_window() -> Optional[WindowRect]:
+def get_active_window() -> Optional[WindowInfo]:
     """获取当前激活窗口"""
     global _active_window
     return _active_window
 
 
-def set_active_window(window_rect: WindowRect):
+def set_active_window(window_rect: WindowInfo):
     """设置当前激活窗口"""
     global _active_window
     _active_window = window_rect

@@ -1,9 +1,10 @@
 # gui_query.py - 查询类工具函数
 from langchain_core.tools import tool
-from typing import List, Dict, Optional
-from gui_tools.window_manager import WindowManager, WindowRect
+from typing import List, Dict
+from gui_tools.window_manager import WindowManager
 from .shared_state import get_active_window, set_active_window
-
+import base64
+from io import BytesIO
 
 @tool
 def list_windows() -> List[str]:
@@ -66,11 +67,9 @@ def activate_window(title: str, index: int = 0) -> Dict:
     if not matching_windows or index >= len(matching_windows):
         return {"error": f"未找到窗口: {title} (index: {index})"}
 
-    active_window_rect = matching_windows[index].rect
-    set_active_window(active_window_rect)
+    set_active_window(matching_windows[index])
     return {
-        "message": f"已激活窗口: {title}",
-        "rect": active_window_rect.to_dict()
+        "message": f"已激活窗口: title: {title}, index: {index}",
     }
 
 
@@ -82,4 +81,29 @@ def get_current_active_window() -> Dict:
         return {"error": "未激活任何窗口"}
     return {
         "rect": active_window.to_dict()
+    }
+
+
+@tool
+def capture_window_base64(title: str, index: int = 0) -> Dict:
+    """
+    对指定窗口截图并以 base64 字符串形式返回。
+    若窗口不存在或截图失败，返回错误信息。
+    """
+    wm = WindowManager()
+    img = wm.capture_window(title, index)
+    if img is None:
+        return {"error": f"窗口不存在或截图失败: {title} (index: {index})"}
+
+    # PIL -> PNG -> base64
+    buf = BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+    b64_str = base64.b64encode(buf.read()).decode("utf-8")
+
+    return {
+        "title": title,
+        "index": index,
+        "image_base64": b64_str,
+        "format": "PNG"
     }

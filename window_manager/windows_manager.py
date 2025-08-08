@@ -72,7 +72,7 @@ class WindowsWindowManager(BaseWindowManager):
                 w.restore()
             w.activate()
             time.sleep(0.1)
-        except indexError:
+        except Exception:
             pass
 
     # --------------------------------------------------
@@ -107,7 +107,7 @@ class WindowsWindowManager(BaseWindowManager):
             try:
                 w = gw.getWindowsWithTitle(title)[index]
                 w.resizeTo(width, height)
-            except indexError:
+            except Exception:
                 pass
 
     # --------------------------------------------------
@@ -117,7 +117,7 @@ class WindowsWindowManager(BaseWindowManager):
             try:
                 w = gw.getWindowsWithTitle(title)[index]
                 w.moveTo(x, y)
-            except indexError:
+            except Exception:
                 pass
 
     # --------------------------------------------------
@@ -129,7 +129,7 @@ class WindowsWindowManager(BaseWindowManager):
         if not win:
             return None
 
-        rect_dict = win.rect.get_dict()
+        rect_dict = win.rect.to_dict()
         with mss.mss() as sct:
             sct_img = sct.grab(rect_dict)
 

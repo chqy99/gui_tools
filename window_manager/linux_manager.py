@@ -2,6 +2,7 @@ import subprocess
 import re
 from typing import List, Optional
 import mss
+from PIL import Image
 from .base_manager import BaseWindowManager, WindowInfo, WindowRect
 from dataclasses import dataclass
 
@@ -94,7 +95,10 @@ class LinuxWindowManager(BaseWindowManager):
         if index >= len(windows):
             raise ValueError(f"窗口索引超出范围: {index}")
         w = windows[index]
-        rect = w.rect
+        rect = w.rect.to_dict()
 
         with mss.mss() as sct:
-            return sct.grab(rect.to_dict())
+            sct_img = sct.grab(rect)
+
+        # BGRX -> RGB
+        return Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")

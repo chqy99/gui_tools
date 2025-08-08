@@ -5,6 +5,7 @@ from .gui_query import (
     get_window_info,
     activate_window,
     get_current_active_window,
+    capture_window_base64
 )
 
 from .gui_action import (
@@ -18,10 +19,8 @@ from .gui_action import (
     type_text,
     press_key,
     hotkey,
-    screenshot_current_window,
     resize_window,
     move_window,
-    capture_window,
 )
 
 # 所有可用的工具列表
@@ -32,6 +31,7 @@ TOOLS = [
     get_window_info,
     activate_window,
     get_current_active_window,
+    capture_window_base64,
 
     # 操作类工具
     click_at,
@@ -44,10 +44,8 @@ TOOLS = [
     type_text,
     press_key,
     hotkey,
-    screenshot_current_window,
     resize_window,
     move_window,
-    capture_window,
 ]
 
 __all__ = [
@@ -58,6 +56,7 @@ __all__ = [
     "get_window_info",
     "activate_window",
     "get_current_active_window",
+    "capture_window_base64",
     # 操作类工具
     "click_at",
     "move_mouse",
@@ -69,8 +68,6 @@ __all__ = [
     "type_text",
     "press_key",
     "hotkey",
-    "screenshot_current_window",
     "resize_window",
     "move_window",
-    "capture_window",
 ]
