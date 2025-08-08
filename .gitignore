@@ -1,0 +1,8 @@
+*.pyc
+__pycache__
+checkpoints/
+LOG/
+.github
+.chroma_db
+img_storage/
+image.sqlite
