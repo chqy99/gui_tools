@@ -1,7 +1,7 @@
 # gui_query.py - 查询类工具函数
 from langchain_core.tools import tool
 from typing import List, Dict, Optional
-from window_manager import WindowManager, WindowRect
+from gui_tools.window_manager import WindowManager, WindowRect
 from .shared_state import get_active_window, set_active_window
 
 

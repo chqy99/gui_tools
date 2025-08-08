@@ -1,7 +1,7 @@
 # pyautogui_wrapper.py
 import pyautogui
 from typing import Optional
-from window_manager.base_manager import WindowRect
+from gui_tools.window_manager.base_manager import WindowRect
 
 
 class PyAutoGUIWrapper:

@@ -1,6 +1,6 @@
 # shared_state.py - 共享状态管理
 from typing import Optional
-from window_manager import WindowRect
+from gui_tools.window_manager import WindowRect
 
 _active_window: Optional[WindowRect] = None
 

@@ -1,9 +1,11 @@
-import win32gui
-import win32con
-import win32ui
+import time
+from typing import List, Optional
+
+import pygetwindow as gw
+import pyautogui
 import mss
-from typing import Optional, List
 from PIL import Image
+
 from .base_manager import BaseWindowManager, WindowInfo, WindowRect
 
 
@@ -11,30 +13,33 @@ class WindowsWindowManager(BaseWindowManager):
     def __init__(self):
         self._windows_cache: List[WindowInfo] = self.list_windows()
 
+    # --------------------------------------------------
     def list_windows(self) -> List[WindowInfo]:
+        """
+        用 pygetwindow 枚举所有可见窗口
+        与 win32gui 版本返回结构一致
+        """
         windows: List[WindowInfo] = []
 
-        def _enum_handler(hwnd, _):
-            if win32gui.IsWindowVisible(hwnd):
-                title = win32gui.GetWindowText(hwnd)
-                if title:
-                    left, top, right, bottom = win32gui.GetWindowRect(hwnd)
-                    rect = WindowRect(
-                        left=left,
-                        top=top,
-                        width=right - left,
-                        height=bottom - top
-                    )
-                    windows.append(WindowInfo(
-                        id=str(hwnd),
-                        title=title,
-                        index=0,  # 临时，后面加索引
-                        rect=rect
-                    ))
+        # pygetwindow 的返回值就是窗口对象
+        for w in gw.getAllWindows():
+            if not w.visible:
+                continue
+            # 计算并构造 WindowRect
+            rect = WindowRect(
+                left=w.left,
+                top=w.top,
+                width=w.width,
+                height=w.height
+            )
+            windows.append(WindowInfo(
+                id=str(w._hWnd),  # 内部句柄
+                title=w.title,
+                index=0,  # 临时
+                rect=rect
+            ))
 
-        win32gui.EnumWindows(_enum_handler, None)
-
-        # 给同名窗口添加 index
+        # 给同名窗口编号
         title_count = {}
         for w in windows:
             t = w.title
@@ -44,58 +49,89 @@ class WindowsWindowManager(BaseWindowManager):
         self._windows_cache = windows
         return windows
 
+    # --------------------------------------------------
     def _find_window(self, title: str, index: int = 0) -> Optional[WindowInfo]:
+        # 缓存里找
         for w in self._windows_cache:
             if w.title == title and w.index == index:
                 return w
         return None
 
+    # --------------------------------------------------
     def focus_window(self, title: str, index: int = 0):
+        """
+        激活窗口：pygetwindow 自带方法
+        """
         win = self._find_window(title, index)
-        if win:
-            win32gui.SetForegroundWindow(int(win.id))
+        if not win:
+            return
 
+        try:
+            w = gw.getWindowsWithTitle(title)[index]
+            if w.isMinimized:
+                w.restore()
+            w.activate()
+            time.sleep(0.1)
+        except IndexError:
+            pass
+
+    # --------------------------------------------------
     def get_active_window(self) -> Optional[WindowInfo]:
-        hwnd = win32gui.GetForegroundWindow()
-        title = win32gui.GetWindowText(hwnd)
-        left, top, right, bottom = win32gui.GetWindowRect(hwnd)
-        rect = WindowRect(left, top, right - left, bottom - top)
+        try:
+            w = gw.getActiveWindow()
+            if not w:
+                return None
+        except Exception:
+            return None
 
-        # 找出索引
+        # 计算 index
         index = 0
-        for w in self._windows_cache:
-            if w.title == title and int(w.id) == hwnd:
-                index = w.index
+        title = w.title
+        for cached in self._windows_cache:
+            if cached.title == title and str(cached.id) == str(w._hWnd):
+                index = cached.index
                 break
 
-        return WindowInfo(id=str(hwnd), title=title, index=index, rect=rect)
+        rect = WindowRect(w.left, w.top, w.width, w.height)
+        return WindowInfo(
+            id=str(w._hWnd),
+            title=title,
+            index=index,
+            rect=rect
+        )
 
+    # --------------------------------------------------
     def resize_window(self, title: str, width: int, height: int, index: int = 0):
         win = self._find_window(title, index)
         if win:
-            win32gui.MoveWindow(int(win.id), win.rect.left, win.rect.top, width, height, True)
+            try:
+                w = gw.getWindowsWithTitle(title)[index]
+                w.resizeTo(width, height)
+            except IndexError:
+                pass
 
+    # --------------------------------------------------
     def move_window(self, title: str, x: int, y: int, index: int = 0):
         win = self._find_window(title, index)
         if win:
-            win32gui.MoveWindow(int(win.id), x, y, win.rect.width, win.rect.height, True)
+            try:
+                w = gw.getWindowsWithTitle(title)[index]
+                w.moveTo(x, y)
+            except IndexError:
+                pass
 
+    # --------------------------------------------------
     def capture_window(self, title: str, index: int = 0) -> Optional[Image.Image]:
-        """用 mss 给窗口截图"""
+        """
+        用 mss 截窗口，逻辑与原 win32gui 版一致
+        """
         win = self._find_window(title, index)
         if not win:
             return None
 
-        rect_dict = {
-            "left": win.rect.left,
-            "top": win.rect.top,
-            "width": win.rect.width,
-            "height": win.rect.height
-        }
-
+        rect_dict = win.rect.get_dict()
         with mss.mss() as sct:
             sct_img = sct.grab(rect_dict)
 
-        # 转成 PIL Image
-        img = Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")
-        return img
+        # BGRX -> RGB
+        return Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")

@@ -1,8 +1,8 @@
 # gui_action.py - 执行操作类工具函数
 from langchain_core.tools import tool
 from typing import Optional, Dict
-from window_manager import WindowManager, WindowRect
-from pyautogui_wrapper import PyAutoGUIWrapper, ScreenCapture
+from gui_tools.window_manager import WindowManager, WindowRect
+from gui_tools.pyautogui_wrapper import PyAutoGUIWrapper, ScreenCapture
 from .shared_state import get_active_window
 
 
